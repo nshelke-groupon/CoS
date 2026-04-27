@@ -33,6 +33,7 @@ logs/*
 
 # Per-user skill configs
 .claude/skills/*/config.local.json
+.claude/skills/meta-tempo-log/config.json
 
 # OS files
 .DS_Store
