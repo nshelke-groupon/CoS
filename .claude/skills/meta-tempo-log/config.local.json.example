@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy this file to config.local.json and fill in your own values. config.local.json is gitignored. Local values override shared defaults from config.json at load time.",
+  "atlassian_account_id": "YOUR_ATLASSIAN_ACCOUNT_ID",
+  "keychain": {
+    "account": "YOUR_MACOS_USERNAME"
+  }
+}

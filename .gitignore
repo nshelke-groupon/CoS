@@ -31,6 +31,9 @@ logs/*
 .agents/
 .wrangler/
 
+# Per-user skill configs
+.claude/skills/*/config.local.json
+
 # OS files
 .DS_Store
 .claude/hooks/git-sync/.sync.lock
