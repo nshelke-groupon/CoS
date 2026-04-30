@@ -1,0 +1,49 @@
+{
+  "_comment": "Copy to config.json and fill in your own values. config.json is gitignored. Quarterly fields under current_quarter need updating each new quarter.",
+  "atlassian_cloud_id": "<jira-cloud-uuid>",
+  "atlassian_email": "<your-email@example.com>",
+  "jira_project_key": "SFDC",
+  "jira_board_id": "<numeric-board-id-of-the-SFDC-scrum-board>",
+
+  "current_quarter": {
+    "label": "26Q2",
+    "label_short": "Q2",
+    "ktlo_epic_key": "SFDC-10198",
+    "operational_epic_key": "SFDC-10106"
+  },
+
+  "admins": [
+    {"name": "Srilakshmi K S", "email": "sriks@groupon.com", "account_id": "<auto-resolved-on-first-run>"},
+    {"name": "Utkarsh Pathak", "email": "upathak@groupon.com", "account_id": "<auto-resolved-on-first-run>"}
+  ],
+
+  "tickets_per_admin_per_sprint": 6,
+  "hours_per_ticket": 8,
+
+  "labels": {
+    "admin": ["Feature"],
+    "dev_oncall": []
+  },
+
+  "name_formats": {
+    "dev_oncall": "[{quarter_label}] Dev On-Call - SFDC {sprint_ordinal} Sprint - {dev_name}",
+    "dev_oncall_split_suffix": " -{week}",
+    "admin": "{quarter_label_short}' Salesforce support cases management S{sprint_number}/{ticket_index}"
+  },
+
+  "description_formats": {
+    "dev_oncall": "Address issues that arise during the dev on-call period for week {week} of the [{quarter_label}] {sprint_ordinal} SFDC sprint, including those related to GPRODs, the engineering channel, and similar areas. Log the hours spent under this ticket.\n\n---\nAuto-created by meta-sprint-bootstrap skill.",
+    "admin": "Allocation for [{quarter_label}] SFDC {sprint_ordinal} Sprint ({sprint_window}). Ticket {ticket_index} of {tickets_per_admin}, assigned to {admin_name}.\n\nLog hours spent on handling and resolving Salesforce support cases from Groupon internal users (Sales, GO, P&E). Focus on user management, data updates, approval process updates, and workflow management to support day-to-day business operations.\n\n---\nAuto-created by meta-sprint-bootstrap skill."
+  },
+
+  "jsm_ops": {
+    "base_url": "https://api.atlassian.com/jsm/ops/api",
+    "team_id": "<discover-on-first-run>",
+    "schedule_id": "<discover-on-first-run>"
+  },
+
+  "keychain": {
+    "service": "atlassian_api_token",
+    "account": "<your-mac-username>"
+  }
+}

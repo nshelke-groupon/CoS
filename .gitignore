@@ -35,6 +35,7 @@ logs/*
 .claude/skills/*/config.local.json
 .claude/skills/meta-tempo-log/config.json
 .claude/skills/meta-weekly-report/config.json
+.claude/skills/meta-sprint-bootstrap/config.json
 
 # MCP server config (per-user tokens, hosts, org names)
 .mcp.json
