@@ -1,0 +1,25 @@
+{
+  "parent_task_gid": "<asana-parent-task-gid-of-recurring-5/15>",
+  "ai_epic_key": "<jira-epic-key-for-AI-work-e.g.-SFDC-10142>",
+  "ai_epic_label": "AI / Foundry Exploration",
+  "ai_skill_dirs": [
+    "/Users/<you>/workspace/CoS/.claude/skills",
+    "/Users/<you>/workspace/CoS/.claude/agents",
+    "/Users/<you>/workspace/CoS/.claude/rules"
+  ],
+  "atlassian_cloud_id": "<jira-cloud-uuid>",
+  "atlassian_account_id": "<your-atlassian-account-id>",
+  "jira_base_url": "https://<your-org>.atlassian.net",
+  "valid_project_prefixes": ["SFDC", "ADMIN", "MTG"],
+  "exclude_meeting_only_tickets": ["MTG-XXXX", "ADMIN-XX"],
+  "timezone": "Asia/Kolkata",
+  "friday_eod_hour_local": 17,
+  "min_priorities": 3,
+  "max_priorities": 5,
+  "github_repos": [
+    "<org>/<repo-1>",
+    "<org>/<repo-2>"
+  ],
+  "github_user": "<gh-username>",
+  "name_format": "5/15 - <Full Name> - {date}"
+}
