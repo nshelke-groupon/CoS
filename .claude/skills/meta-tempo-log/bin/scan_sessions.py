@@ -33,7 +33,17 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 PROJECTS_ROOT = pathlib.Path.home() / ".claude" / "projects"
+SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
+CONFIG_PATH = SKILL_DIR / "config.json"
 TICKET_RE = re.compile(r"\b([A-Z][A-Z0-9]+-\d+)\b")
+# Strip markdown fenced code blocks (```...``` or ~~~...~~~) — these are
+# usually documentation examples (e.g. SKILL.md draft tables) and produce
+# false-positive ticket matches.
+FENCE_RE = re.compile(r"```.*?```|~~~.*?~~~", re.DOTALL)
+# Strip markdown table rows — lines starting with `|` are almost always
+# example tables in injected skill/command bodies.
+TABLE_ROW_RE = re.compile(r"(?m)^\s*\|.*$")
+DEFAULT_PREFIXES = ["SFDC", "ADMIN"]
 
 
 def ist_offset() -> timezone:
@@ -67,7 +77,11 @@ def parse_ts(raw) -> datetime | None:
 
 
 def extract_text(msg: dict) -> str:
-    """Pull every text-like string out of a session message."""
+    """Pull every text-like string out of a session message.
+
+    Skips tool_result blocks (where Read tool dumps land — large file
+    contents are a major source of placeholder ticket false positives).
+    """
     parts = []
     content = msg.get("content")
     if isinstance(content, str):
@@ -77,6 +91,8 @@ def extract_text(msg: dict) -> str:
             if isinstance(c, str):
                 parts.append(c)
             elif isinstance(c, dict):
+                if c.get("type") == "tool_result":
+                    continue
                 for key in ("text", "input", "name", "command", "description"):
                     v = c.get(key)
                     if isinstance(v, str):
@@ -90,7 +106,29 @@ def extract_text(msg: dict) -> str:
     return " ".join(parts)
 
 
-def scan_session(path: pathlib.Path, start_utc: datetime, end_utc: datetime
+def clean_text(text: str) -> str:
+    """Remove fenced code blocks and markdown table rows before regex match."""
+    text = FENCE_RE.sub(" ", text)
+    text = TABLE_ROW_RE.sub(" ", text)
+    return text
+
+
+def load_prefixes(cli_prefixes: str | None) -> list[str]:
+    if cli_prefixes:
+        return [p.strip().upper() for p in cli_prefixes.split(",") if p.strip()]
+    if CONFIG_PATH.is_file():
+        try:
+            cfg = json.loads(CONFIG_PATH.read_text())
+            v = cfg.get("valid_project_prefixes")
+            if isinstance(v, list) and v:
+                return [str(p).upper() for p in v]
+        except (OSError, json.JSONDecodeError):
+            pass
+    return list(DEFAULT_PREFIXES)
+
+
+def scan_session(path: pathlib.Path, start_utc: datetime, end_utc: datetime,
+                 prefixes: list[str]
                  ) -> tuple[set[str], int, str | None]:
     """Return (tickets_in_window, messages_scanned, cwd_or_none)."""
     tickets: set[str] = set()
@@ -117,9 +155,11 @@ def scan_session(path: pathlib.Path, start_utc: datetime, end_utc: datetime
             if ts < start_utc or ts >= end_utc:
                 continue
             msgs += 1
-            text = extract_text(msg)
+            text = clean_text(extract_text(msg))
             for m in TICKET_RE.findall(text):
-                tickets.add(m)
+                prefix = m.split("-", 1)[0]
+                if prefix in prefixes:
+                    tickets.add(m)
     return tickets, msgs, cwd
 
 
@@ -128,8 +168,12 @@ def main() -> None:
     ap.add_argument("--date", required=True, help="Target date YYYY-MM-DD (IST)")
     ap.add_argument("--tz", default="Asia/Kolkata",
                     help="Currently informational; IST is hardcoded")
+    ap.add_argument("--prefixes", default=None,
+                    help="Comma-separated project key prefixes (overrides "
+                         "config.valid_project_prefixes; default 'SFDC,ADMIN')")
     args = ap.parse_args()
 
+    prefixes = load_prefixes(args.prefixes)
     start_utc, end_utc = day_window_utc(args.date)
 
     if not PROJECTS_ROOT.is_dir():
@@ -159,7 +203,9 @@ def main() -> None:
             if mtime < start_utc:
                 continue
             try:
-                tickets, msgs, cwd = scan_session(session_file, start_utc, end_utc)
+                tickets, msgs, cwd = scan_session(
+                    session_file, start_utc, end_utc, prefixes
+                )
             except Exception as e:
                 errors.append({"file": str(session_file), "error": str(e)})
                 continue

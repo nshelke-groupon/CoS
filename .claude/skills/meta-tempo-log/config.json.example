@@ -2,6 +2,7 @@
   "_comment": "Copy this file to config.json and fill in your own values. config.json is gitignored — your real values stay local. Personal overrides also live in config.local.json (also gitignored).",
   "atlassian_account_id": "YOUR_ATLASSIAN_ACCOUNT_ID",
   "jira_base_url": "https://YOUR_TENANT.atlassian.net",
+  "valid_project_prefixes": ["SFDC", "ADMIN"],
   "tempo_api_base": "https://api.tempo.io/4",
   "timezone": "Asia/Kolkata",
   "day_start_hour": 8,
